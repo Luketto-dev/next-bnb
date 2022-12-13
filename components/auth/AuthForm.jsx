@@ -11,7 +11,7 @@ export default function AuthForm() {
 
   async function formSubmitHandler(e) {
     e.preventDefault();
-
+    //
     if (!isLogin) {
       const emailValue = emailInputRef.current.value;
       const passwordValue = passwordInputRef.current.value;
