@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useRef, useState } from "react";
+import { signIn } from "next-auth/react"
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -8,7 +9,7 @@ export default function AuthForm() {
   const firstNameInputRef = useRef();
   const lastNameInputRef = useRef();
 
-  function formSubmitHandler(e) {
+  async function formSubmitHandler(e) {
     e.preventDefault();
 
     if (!isLogin) {
@@ -25,8 +26,21 @@ export default function AuthForm() {
       };
 
       axios.post("/api/auth/register", data);
+    }else{
+
+      const emailValue = emailInputRef.current.value;
+      const passwordValue = passwordInputRef.current.value;
+
+      const result = await signIn('credentials' , {
+        redirect: false,
+        email: emailValue,
+        password: passwordValue,
+        });
+        console.log(result);
     }
   }
+
+
 
   function changeAuthMode(e) {
     e.preventDefault();
