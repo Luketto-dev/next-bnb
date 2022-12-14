@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useRef, useState } from "react";
-import { signIn } from "next-auth/react"
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export default function AuthForm() {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
@@ -26,21 +28,22 @@ export default function AuthForm() {
       };
 
       axios.post("/api/auth/register", data);
-    }else{
-
+    } else {
       const emailValue = emailInputRef.current.value;
       const passwordValue = passwordInputRef.current.value;
 
-      const result = await signIn('credentials' , {
+      const result = await signIn("credentials", {
         redirect: false,
         email: emailValue,
         password: passwordValue,
-        });
-        console.log(result);
+      });
+      console.log(result);
+
+      if (!result.error) {
+        router.push("/");
+      }
     }
   }
-
-
 
   function changeAuthMode(e) {
     e.preventDefault();
