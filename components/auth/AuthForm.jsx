@@ -1,24 +1,48 @@
 import axios from "axios";
 import React, { useRef, useState } from "react";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 
 export default function AuthForm() {
+  const router = useRouter();
+  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState(null);
+
+  const schema = yup
+    .object()
+    .shape({
+      // .email() tolto per vedere se funzionava la validazione lato server
+      email: yup.string().email().required(),
+      password: yup.string().min(8).max(32).required(),
+      firstname: yup.string().min(2).max(60).required(),
+      lastname: yup.string().min(2).max(32).required(),
+    })
+    .required();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm();
-
-  const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true);
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   async function formSubmitHandler(data) {
     if (!isLogin) {
-      // axios.post("/api/auth/register", data);
-      console.log(data);
+      try {
+        setError(null);
+        await axios.post("/api/auth/register", data);
+      } catch (error) {
+        if (error.response.data.message) {
+          alert('utente gia registrato')
+        }
+        
+        setError(error.response.data.errori);
+      }
     } else {
       const result = await signIn("credentials", {
         redirect: false,
@@ -45,16 +69,16 @@ export default function AuthForm() {
           Email address
         </label>
         <input
-          type="email"
+          type="text"
           className="form-control"
           id="exampleInputEmail1"
           aria-describedby="emailHelp"
-          {...register("email", {
-            required: "L'email è obbligatoria",
-          })}
+          {...register("email")}
         />
-        <div>{errors.email && <p>email invalid</p>}</div>
+        <div>{errors.email?.message}</div>
+        <div>{error && <p>{error.email}</p>}</div>
       </div>
+
       <div className="mb-3">
         <label htmlFor="exampleInputPassword1" className="form-label">
           Password
@@ -65,6 +89,8 @@ export default function AuthForm() {
           id="exampleInputPassword1"
           {...register("password")}
         />
+        <div>{errors.password?.message}</div>
+        <div>{error && <p>{error.password}</p>}</div>
       </div>
 
       {!isLogin && (
@@ -77,12 +103,12 @@ export default function AuthForm() {
               type="text"
               className="form-control"
               id="firstname"
-              {...register("firstname", {
-                required: "Il nome è obbligatorio",
-              })}
+              {...register("firstname")}
             />
-            <div>{errors.firstname && <p>firstname invalid</p>}</div>
+            <div>{errors.firstname?.message}</div>
+            <div>{error && <p>{error.firstname}</p>}</div>
           </div>
+
           <div className="mb-3">
             <label htmlFor="lastname" className="form-label">
               Last Name
@@ -91,14 +117,14 @@ export default function AuthForm() {
               type="text"
               className="form-control"
               id="lastname"
-              {...register("lastname", {
-                required: "Il cognome è obbligatorio",
-              })}
+              {...register("lastname")}
             />
-            <div>{errors.lastname && <p>lastname is invalid</p>}</div>
+            <div>{errors.lastname?.message}</div>
+            <div>{error && <p>{error.lastname}</p>}</div>
           </div>
         </>
       )}
+
       <button
         type="button"
         className="btn btn-secondary mb-3"
@@ -108,6 +134,7 @@ export default function AuthForm() {
           ? "Not registered? create new account"
           : "Login with existing account"}
       </button>
+
       <button className="btn btn-primary mb-3">
         {isLogin ? "Login" : "Register"}
       </button>
