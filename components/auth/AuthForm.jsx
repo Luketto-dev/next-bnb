@@ -2,40 +2,28 @@ import axios from "axios";
 import React, { useRef, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
 
 export default function AuthForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
+
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
-  const emailInputRef = useRef();
-  const passwordInputRef = useRef();
-  const firstNameInputRef = useRef();
-  const lastNameInputRef = useRef();
 
-  async function formSubmitHandler(e) {
-    e.preventDefault();
-    //
+  async function formSubmitHandler(data) {
     if (!isLogin) {
-      const emailValue = emailInputRef.current.value;
-      const passwordValue = passwordInputRef.current.value;
-      const firstNameValue = firstNameInputRef.current.value;
-      const lastNameValue = lastNameInputRef.current.value;
-
-      const data = {
-        email: emailValue,
-        password: passwordValue,
-        firstname: firstNameValue,
-        lastname: lastNameValue,
-      };
-
-      axios.post("/api/auth/register", data);
+      // axios.post("/api/auth/register", data);
+      console.log(data);
     } else {
-      const emailValue = emailInputRef.current.value;
-      const passwordValue = passwordInputRef.current.value;
-
       const result = await signIn("credentials", {
         redirect: false,
-        email: emailValue,
-        password: passwordValue,
+        email: data.email,
+        password: data.password,
       });
       console.log(result);
 
@@ -51,25 +39,78 @@ export default function AuthForm() {
   }
 
   return (
-    <form onSubmit={formSubmitHandler} className="container">
-      email
-      <input type="email" name="email" ref={emailInputRef} />
-      password
-      <input type="password" name="password" ref={passwordInputRef} />
+    <form onSubmit={handleSubmit(formSubmitHandler)} className="container ">
+      <div className="mb-3">
+        <label htmlFor="exampleInputEmail1" className="form-label">
+          Email address
+        </label>
+        <input
+          type="email"
+          className="form-control"
+          id="exampleInputEmail1"
+          aria-describedby="emailHelp"
+          {...register("email", {
+            required: "L'email è obbligatoria",
+          })}
+        />
+        <div>{errors.email && <p>email invalid</p>}</div>
+      </div>
+      <div className="mb-3">
+        <label htmlFor="exampleInputPassword1" className="form-label">
+          Password
+        </label>
+        <input
+          type="password"
+          className="form-control"
+          id="exampleInputPassword1"
+          {...register("password")}
+        />
+      </div>
+
       {!isLogin && (
-        <div>
-          first name
-          <input type="text" name="firstname" ref={firstNameInputRef} />
-          last name
-          <input type="text" name="lastname" ref={lastNameInputRef} />
-        </div>
+        <>
+          <div className="mb-3">
+            <label htmlFor="firstname" className="form-label">
+              First Name
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="firstname"
+              {...register("firstname", {
+                required: "Il nome è obbligatorio",
+              })}
+            />
+            <div>{errors.firstname && <p>firstname invalid</p>}</div>
+          </div>
+          <div className="mb-3">
+            <label htmlFor="lastname" className="form-label">
+              Last Name
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="lastname"
+              {...register("lastname", {
+                required: "Il cognome è obbligatorio",
+              })}
+            />
+            <div>{errors.lastname && <p>lastname is invalid</p>}</div>
+          </div>
+        </>
       )}
-      <button type="button" onClick={changeAuthMode}>
+      <button
+        type="button"
+        className="btn btn-secondary mb-3"
+        onClick={changeAuthMode}
+      >
         {isLogin
           ? "Not registered? create new account"
           : "Login with existing account"}
       </button>
-      <button>{isLogin ? "Login" : "Register"}</button>
+      <button className="btn btn-primary mb-3">
+        {isLogin ? "Login" : "Register"}
+      </button>
     </form>
   );
 }
