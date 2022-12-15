@@ -34,27 +34,32 @@ export default async function (req, res) {
 
     res.status(501).json({ errori: errorsObj });
   }
-
-  try {
-    const prisma = new PrismaClient();
-
-    if (req.method !== "POST") {
-      res.status(401).json({ message: "invalid method" });
-    }
-
-    const hashedPassword = await hash(password, 12);
-
-    const user = await prisma.user.create({
-      data: {
-        email: email,
-        password: hashedPassword,
-        firsname: firstname,
-        lastname: lastname,
-      },
-    });
-
-    res.status(200).json({ message: user });
-  } catch (error) {
-    res.status(402).json({ message: 'utente non creato' });
+  if (req.method !== "POST") {
+    res.status(401).json({ message: "invalid method" });
   }
+
+  const prisma = new PrismaClient();
+
+  const utenteInserito = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+
+  if (utenteInserito) {
+    res.status(402).json({ message: "utente non creato" });
+    return;
+  }
+  
+
+  const hashedPassword = await hash(password, 12);
+
+  const user = await prisma.user.create({
+    data: {
+      email: email,
+      password: hashedPassword,
+      firsname: firstname,
+      lastname: lastname,
+    },
+  });
 }

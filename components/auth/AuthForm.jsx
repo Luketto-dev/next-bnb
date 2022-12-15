@@ -49,7 +49,9 @@ export default function AuthForm() {
         email: data.email,
         password: data.password,
       });
-      console.log(result);
+      if(result.error){
+        alert('credenziali errate!')
+      }
 
       if (!result.error) {
         router.push("/");
