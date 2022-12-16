@@ -14,7 +14,7 @@ datasource db {
 model User{
   id    Int     @id @default(autoincrement())
   email String  @unique
-  password String @db.VarChar(40)
+  password String @db.VarChar(500)
   firstname String? @db.VarChar(150)
   lastname String? @db.VarChar(150)
   apartments Apartment[]
@@ -26,7 +26,7 @@ model Apartment{
   id    Int     @id @default(autoincrement())
   name String
   city String
-  price Decimal
+  price Float
   types Type[]
   user_id Int @unique
   user User @relation(fields: [user_id], references: [id])
