@@ -3,7 +3,7 @@ CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(40) NOT NULL,
-    `firsname` VARCHAR(150) NULL,
+    `firstname` VARCHAR(150) NULL,
     `lastname` VARCHAR(150) NULL,
 
     UNIQUE INDEX `User_email_key`(`email`),

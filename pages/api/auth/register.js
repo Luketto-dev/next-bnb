@@ -58,7 +58,7 @@ export default async function (req, res) {
     data: {
       email: email,
       password: hashedPassword,
-      firsname: firstname,
+      firstname: firstname,
       lastname: lastname,
     },
   });
