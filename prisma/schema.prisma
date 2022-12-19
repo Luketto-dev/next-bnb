@@ -27,8 +27,9 @@ model Apartment{
   name String
   city String
   price Float
-  types Type[]
-  user_id Int @unique
+  type_id Int
+  types Type @relation(fields: [type_id], references: [id])
+  user_id Int
   user User @relation(fields: [user_id], references: [id])
 }
 
@@ -42,6 +43,6 @@ model Message{
   id    Int     @id @default(autoincrement())
   title String
   content String @db.VarChar(500)
-  user_id Int @unique
+  user_id Int
   user User @relation(fields: [user_id], references: [id])
 }
