@@ -3,14 +3,15 @@ import { getSession } from "next-auth/react";
 import { PrismaClient } from "@prisma/client";
 
 export default function profile(props) {
-  const { firstname, lastname, email } = props;
+  const { user } = props;
 
   return (
     <div>
-      {firstname}
-      {lastname}
-      {email}
-      {JSON.stringify(props.user)}
+      {user.firstname}
+      {user.lastname}
+      {user.email}
+      {user.apartments.map((apartment) => (<div key={apartment.id}>{apartment.name}</div>))}
+      
     </div>
   );
 }
@@ -50,9 +51,6 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      firstname: user.firstname,
-      lastname: user.lastname,
-      email: user.email,
       user: user,
     },
   };
